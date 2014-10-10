@@ -1,4 +1,4 @@
-package xyz.rjs.brandwatch.supermarkets.logistics.plugins;
+package xyz.rjs.brandwatch.supermarkets.logistics.plugins.good;
 
 import static org.junit.Assert.assertEquals;
 
