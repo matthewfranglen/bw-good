@@ -40,6 +40,15 @@ public class Stats {
 	}
 
 	/**
+	 * Calculate the mean of all of the values.
+	 * 
+	 * @return
+	 */
+	public double average() {
+		return average(values.size());
+	}
+
+	/**
 	 * Calculates the 2 standard deviation confidence level for the values.
 	 * 
 	 * @param count - the number of time units that have passed
@@ -48,6 +57,15 @@ public class Stats {
 	public double confidence(int count) {
 		final double a = average(count), sd = standardDeviation(count);
 		return a + (2 * sd);
+	}
+
+	/**
+	 * Calculates the 2 standard deviation confidence level for the values.
+	 * 
+	 * @return
+	 */
+	public double confidence() {
+		return confidence(values.size());
 	}
 
 	/**
@@ -71,5 +89,15 @@ public class Stats {
 		final double valueSum = values.stream().mapToDouble(Number::doubleValue).map(v -> v - a).map(v -> v * v).sum();
 
 		return sqrt((zeroSum + valueSum) / count);
+	}
+
+
+	/**
+	 * Calculates the standard deviation of the values.
+	 * 
+	 * @return
+	 */
+	public double standardDeviation() {
+		return standardDeviation(values.size());
 	}
 }
