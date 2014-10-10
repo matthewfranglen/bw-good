@@ -61,14 +61,6 @@ public class GoodPlugin extends AbstractPlugin {
 
 	private static final Logger logger = LoggerFactory.getLogger(GoodPlugin.class);
 
-	@Autowired
-	private Warehouse warehouse;
-
-	/**
-	 * The current state of the plugin.
-	 */
-	private STATE state;
-
 	/**
 	 * These are the trades that are issued by the GATHER_DATA state. 
 	 * The total of 78 is slightly under the lowest starting balance of 85.
@@ -78,6 +70,14 @@ public class GoodPlugin extends AbstractPlugin {
 	 * This is the buy price at which it becomes unprofitable to buy any stock.
 	 */
 	private static final int PRICE_LIMIT = 10;
+
+	@Autowired
+	private Warehouse warehouse;
+
+	/**
+	 * The current state of the plugin.
+	 */
+	private STATE state;
 
 	/**
 	 * This is the list of outstanding orders.
