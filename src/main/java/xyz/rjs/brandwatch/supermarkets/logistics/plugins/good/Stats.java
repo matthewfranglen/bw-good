@@ -25,6 +25,10 @@ public class Stats {
 		values.add(value);
 	}
 
+	public boolean isEmpty() {
+		return values.isEmpty();
+	}
+
 	/**
 	 * Calculate the mean of all of the values.
 	 * 
