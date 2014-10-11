@@ -108,10 +108,6 @@ public class GoodPlugin extends AbstractPlugin {
 	public void tickListener(ClockTick tick) {
 		state.tickListener(this, tick);
 		stockShop();
-
-		logger.info(String.format(
-				"\nTICK: Delivery Time (%.2f) Purchase per Tick (%.2f) Shop Stock (%d) Warehouse Stock (%d) Total Stock (%d) Required Stock (%d)",
-				deliveries.confidence(), purchases.overallConfidence(), shop.getStock(), warehouse.getStock(), getTotalStock(), getRequiredStock()));
 	}
 
 	/**
@@ -147,7 +143,7 @@ public class GoodPlugin extends AbstractPlugin {
 	 * 
 	 * @return
 	 */
-	private int getTotalStock() {
+	public int getTotalStock() {
 		return shop.getStock() + warehouse.getStock() + deliveries.pendingStock();
 	}
 
@@ -156,7 +152,7 @@ public class GoodPlugin extends AbstractPlugin {
 	 * 
 	 * @return
 	 */
-	private int getRequiredStock() {
+	public int getRequiredStock() {
 		return (int) Math.ceil((deliveries.confidence() * purchases.overallConfidence()));
 	}
 
