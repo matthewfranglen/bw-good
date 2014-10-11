@@ -107,23 +107,6 @@ public class GoodPlugin extends AbstractPlugin {
 	@Subscribe
 	public void tickListener(ClockTick tick) {
 		state.tickListener(this, tick);
-		stockShop();
-	}
-
-	/**
-	 * This ensures that the shop has at least enough stock for a single tick of
-	 * sales.
-	 */
-	private void stockShop() {
-		// The calculation of p here does *not* use the tick count because this
-		// is a calculation that only considers ticks where there was a sale.
-		int p = (int) Math.ceil(purchases.confidence());
-
-		if (shop.getStock() < p && warehouse.getStock() > 0) {
-			int volume = Math.min(p - shop.getStock(), warehouse.getStock());
-			shop.addStock(volume);
-			warehouse.setStock(warehouse.getStock() - volume);
-		}
 	}
 
 	/**
