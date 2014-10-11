@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import xyz.rjs.brandwatch.supermarkets.logistics.plugins.AbstractPlugin;
 import xyz.rjs.brandwatch.supermarkets.model.events.ClockTick;
-import xyz.rjs.brandwatch.supermarkets.model.events.Customer;
 import xyz.rjs.brandwatch.supermarkets.model.events.Order;
 import xyz.rjs.brandwatch.supermarkets.model.events.PriceList;
 import xyz.rjs.brandwatch.supermarkets.sim.Shop;
@@ -74,6 +73,12 @@ public class GoodPlugin extends AbstractPlugin {
 	private DeliveryStats deliveries;
 
 	/**
+	 * This tracks every proposed sale and calculates sale volume confidence.
+	 */
+	@Autowired
+	private PurchaseStats purchases;
+
+	/**
 	 * The current state of the plugin.
 	 */
 	private STATE state;
@@ -86,25 +91,11 @@ public class GoodPlugin extends AbstractPlugin {
 	 * This is the current per unit buy price.
 	 */
 	private int price;
-	/**
-	 * This is the last seen tick. This is used to calculate delivery times.
-	 */
-	private int tick;
 
-	/**
-	 * This tracks every proposed sale and calculates sale volume confidence.
-	 */
-	private final Stats purchases;
 
 	public GoodPlugin() {
 		state = STATE.START;
 		startingTradesIndex = 0;
-		purchases = new Stats();
-	}
-
-	@Subscribe
-	public void customerListener(Customer customer) {
-		purchases.add(customer.getStuffNeeded());
 	}
 
 	@Subscribe
@@ -115,13 +106,12 @@ public class GoodPlugin extends AbstractPlugin {
 
 	@Subscribe
 	public void tickListener(ClockTick tick) {
-		this.tick = tick.getTick(); // saved so that arrivals can be tracked.
 		state.tickListener(this, tick);
 		stockShop();
 
 		logger.info(String.format(
 				"\nTICK: Delivery Time (%.2f) Purchase per Tick (%.2f) Shop Stock (%d) Warehouse Stock (%d) Total Stock (%d) Required Stock (%d)",
-				deliveries.confidence(), purchases.confidence(this.tick), shop.getStock(), warehouse.getStock(), getTotalStock(), getRequiredStock()));
+				deliveries.confidence(), purchases.overallConfidence(), shop.getStock(), warehouse.getStock(), getTotalStock(), getRequiredStock()));
 	}
 
 	/**
@@ -167,7 +157,7 @@ public class GoodPlugin extends AbstractPlugin {
 	 * @return
 	 */
 	private int getRequiredStock() {
-		return (int) Math.ceil((deliveries.confidence() * purchases.confidence(tick)));
+		return (int) Math.ceil((deliveries.confidence() * purchases.overallConfidence()));
 	}
 
 	/**
