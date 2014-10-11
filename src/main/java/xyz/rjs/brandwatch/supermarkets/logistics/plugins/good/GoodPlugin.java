@@ -1,16 +1,11 @@
 package xyz.rjs.brandwatch.supermarkets.logistics.plugins.good;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import xyz.rjs.brandwatch.supermarkets.logistics.plugins.AbstractPlugin;
-import xyz.rjs.brandwatch.supermarkets.model.events.ArrivalNotification;
 import xyz.rjs.brandwatch.supermarkets.model.events.ClockTick;
 import xyz.rjs.brandwatch.supermarkets.model.events.Customer;
 import xyz.rjs.brandwatch.supermarkets.model.events.Order;
@@ -73,14 +68,16 @@ public class GoodPlugin extends AbstractPlugin {
 	private Shop shop;
 
 	/**
+	 * This tracks every completed delivery and calculates duration confidence.
+	 */
+	@Autowired
+	private DeliveryStats deliveries;
+
+	/**
 	 * The current state of the plugin.
 	 */
 	private STATE state;
 
-	/**
-	 * This is the list of outstanding orders.
-	 */
-	private final Collection<PendingOrder> orders;
 	/**
 	 * This is the current index in the STARTING_TRADES array.
 	 */
@@ -95,39 +92,14 @@ public class GoodPlugin extends AbstractPlugin {
 	private int tick;
 
 	/**
-	 * This tracks every completed delivery and calculates duration confidence.
-	 */
-	private final Stats deliveries;
-	/**
 	 * This tracks every proposed sale and calculates sale volume confidence.
 	 */
 	private final Stats purchases;
 
 	public GoodPlugin() {
-		orders = new ArrayList<PendingOrder>();
 		state = STATE.START;
 		startingTradesIndex = 0;
-		deliveries = new Stats();
 		purchases = new Stats();
-	}
-
-	@Subscribe
-	public void arrivalListener(ArrivalNotification arrival) {
-		// Only arrivals at the Warehouse need to be tracked.
-		// Warehouse to Shop is instant (see WarehouseManagementSystem).
-		if (arrival.getPlace() != warehouse) {
-			return;
-		}
-
-		final int amount = arrival.getAmount();
-		Optional<PendingOrder> order = orders.stream().filter(o -> o.getVolume() == amount).findFirst();
-
-		if (order.isPresent()) {
-			PendingOrder o = order.get();
-
-			deliveries.add(tick - o.getTick());
-			orders.remove(o);
-		}
 	}
 
 	@Subscribe
@@ -139,11 +111,6 @@ public class GoodPlugin extends AbstractPlugin {
 	public void priceListener(PriceList priceList) {
 		price = priceList.getCurrentPrice();
 		state.priceListener(this, priceList);
-	}
-
-	@Subscribe
-	public void orderListener(Order order) {
-		orders.add(new PendingOrder(order.getVolume(), tick));
 	}
 
 	@Subscribe
@@ -191,7 +158,7 @@ public class GoodPlugin extends AbstractPlugin {
 	 * @return
 	 */
 	private int getTotalStock() {
-		return shop.getStock() + warehouse.getStock() + orders.stream().mapToInt(order -> order.getVolume()).sum();
+		return shop.getStock() + warehouse.getStock() + deliveries.pendingStock();
 	}
 
 	/**
