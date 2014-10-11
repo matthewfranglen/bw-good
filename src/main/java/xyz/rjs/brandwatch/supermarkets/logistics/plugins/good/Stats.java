@@ -1,5 +1,6 @@
 package xyz.rjs.brandwatch.supermarkets.logistics.plugins.good;
 
+import static com.google.common.base.Preconditions.checkPositionIndex;
 import static java.lang.Math.sqrt;
 
 import java.util.ArrayList;
@@ -36,6 +37,8 @@ public class Stats {
 	 * @return
 	 */
 	public double average(int count) {
+		checkPositionIndex(count, values.size(), "This assumes that there cannot be more values than there are counts");
+
 		return values.stream().mapToDouble(Number::doubleValue).sum() / count;
 	}
 
@@ -55,6 +58,8 @@ public class Stats {
 	 * @return
 	 */
 	public double confidence(int count) {
+		checkPositionIndex(count, values.size(), "This assumes that there cannot be more values than there are counts");
+
 		final double a = average(count), sd = standardDeviation(count);
 		return a + (2 * sd);
 	}
@@ -75,6 +80,8 @@ public class Stats {
 	 * @return
 	 */
 	public double standardDeviation(int count) {
+		checkPositionIndex(count, values.size(), "This assumes that there cannot be more values than there are counts");
+
 		final double a = average(count);
 
 		// There can be one value for any count, so the number of unrecorded
