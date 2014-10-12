@@ -37,7 +37,7 @@ public class Stats {
 	 * @return
 	 */
 	public double average(int count) {
-		checkPositionIndex(count, values.size(), "This assumes that there cannot be more values than there are counts");
+		checkPositionIndex(values.size(), count, "This assumes that there cannot be more values than there are counts");
 
 		return values.stream().mapToDouble(Number::doubleValue).sum() / count;
 	}
@@ -58,7 +58,7 @@ public class Stats {
 	 * @return
 	 */
 	public double confidence(int count) {
-		checkPositionIndex(count, values.size(), "This assumes that there cannot be more values than there are counts");
+		checkPositionIndex(values.size(), count, "This assumes that there cannot be more values than there are counts");
 
 		final double a = average(count), sd = standardDeviation(count);
 		return a + (2 * sd);
@@ -80,7 +80,7 @@ public class Stats {
 	 * @return
 	 */
 	public double standardDeviation(int count) {
-		checkPositionIndex(count, values.size(), "This assumes that there cannot be more values than there are counts");
+		checkPositionIndex(values.size(), count, "This assumes that there cannot be more values than there are counts");
 
 		final double a = average(count);
 

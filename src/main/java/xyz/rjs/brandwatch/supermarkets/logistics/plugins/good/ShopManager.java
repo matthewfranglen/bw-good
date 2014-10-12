@@ -36,11 +36,12 @@ public class ShopManager extends AbstractPlugin {
 		// The calculation of p here does *not* use the tick count because this
 		// is a calculation that only considers ticks where there was a sale.
 		int p = (int) Math.ceil(purchases.confidence());
+		int shopStock = shop.getStock(), warehouseStock = warehouse.getStock();
 
-		if (shop.getStock() < p && warehouse.getStock() > 0) {
-			int volume = Math.min(p - shop.getStock(), warehouse.getStock());
+		if (shopStock < p && warehouseStock > 0) {
+			int volume = Math.min(p - shopStock, warehouseStock);
 			shop.addStock(volume);
-			warehouse.setStock(warehouse.getStock() - volume);
+			warehouse.setStock(warehouseStock - volume);
 		}
 	}
 }
