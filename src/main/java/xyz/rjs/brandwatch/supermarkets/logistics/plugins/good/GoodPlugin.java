@@ -92,7 +92,6 @@ public class GoodPlugin extends AbstractPlugin {
 	 */
 	private int price;
 
-
 	public GoodPlugin() {
 		state = STATE.START;
 		startingTradesIndex = 0;
@@ -101,12 +100,12 @@ public class GoodPlugin extends AbstractPlugin {
 	@Subscribe
 	public void priceListener(PriceList priceList) {
 		price = priceList.getCurrentPrice();
-		state.priceListener(this, priceList);
+		state.priceListener(this);
 	}
 
 	@Subscribe
 	public void tickListener(ClockTick tick) {
-		state.tickListener(this, tick);
+		state.tickListener(this);
 	}
 
 	/**
@@ -164,7 +163,7 @@ public class GoodPlugin extends AbstractPlugin {
 		START() {
 
 			@Override
-			void priceListener(GoodPlugin plugin, PriceList priceList) {
+			void priceListener(GoodPlugin plugin) {
 				plugin.setState(GATHER_DATA);
 			}
 		},
@@ -174,7 +173,7 @@ public class GoodPlugin extends AbstractPlugin {
 		GATHER_DATA() {
 
 			@Override
-			void tickListener(GoodPlugin plugin, ClockTick tick) {
+			void tickListener(GoodPlugin plugin) {
 				if (plugin.startingTradesIndex < STARTING_TRADES.length && plugin.price < PRICE_LIMIT) {
 					plugin.placeOrder(STARTING_TRADES[plugin.startingTradesIndex]);
 					plugin.startingTradesIndex++;
@@ -187,7 +186,7 @@ public class GoodPlugin extends AbstractPlugin {
 		TRADE() {
 
 			@Override
-			void tickListener(GoodPlugin plugin, ClockTick tick) {
+			void tickListener(GoodPlugin plugin) {
 				int requiredStock = plugin.getRequiredStock() - plugin.getTotalStock();
 
 				if (requiredStock > 0) {
@@ -196,8 +195,8 @@ public class GoodPlugin extends AbstractPlugin {
 			}
 
 			@Override
-			void priceListener(GoodPlugin plugin, PriceList priceList) {
-				if (priceList.getCurrentPrice() >= PRICE_LIMIT) {
+			void priceListener(GoodPlugin plugin) {
+				if (plugin.price >= PRICE_LIMIT) {
 					plugin.setState(OVERPRICED);
 				}
 			}
@@ -205,18 +204,18 @@ public class GoodPlugin extends AbstractPlugin {
 		OVERPRICED() {
 
 			@Override
-			void priceListener(GoodPlugin plugin, PriceList priceList) {
-				if (priceList.getCurrentPrice() < PRICE_LIMIT) {
+			void priceListener(GoodPlugin plugin) {
+				if (plugin.price < PRICE_LIMIT) {
 					plugin.setState(TRADE);
 				}
 			}
 
 		};
 
-		void tickListener(GoodPlugin plugin, ClockTick tick) {
+		void tickListener(GoodPlugin plugin) {
 		}
 
-		void priceListener(GoodPlugin plugin, PriceList priceList) {
+		void priceListener(GoodPlugin plugin) {
 		}
 	}
 }
